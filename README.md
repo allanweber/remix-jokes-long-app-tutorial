@@ -14,3 +14,20 @@ SESSION_SECRET
 ```bash
 openssl rand -base64 32
 ```
+
+## Fly.io
+
+```bash
+flyctl auth signup
+flyctl launch
+
+flyctl secrets set SESSION_SECRET=<something>
+flyctl secrets set DATABASE_URL=<data base url>
+
+npx prisma migrate dev
+
+# Optional
+npx prisma db seed
+
+flyctl deploy
+```

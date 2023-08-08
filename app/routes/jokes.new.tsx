@@ -1,11 +1,14 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import {
+  Form,
   Link,
   isRouteErrorResponse,
   useActionData,
+  useNavigation,
   useRouteError,
 } from '@remix-run/react';
+import { JokeDisplay } from '~/components/joke';
 import { db } from '~/utils/db.server';
 import { badRequest } from '~/utils/request.server';
 import { getUserId, requireUserId } from '~/utils/session.server';
@@ -64,10 +67,32 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function NewJokeRoute() {
   const actionData = useActionData<typeof action>();
+
+  const navigation = useNavigation();
+
+  if (navigation.formData) {
+    const content = navigation.formData.get('content');
+    const name = navigation.formData.get('name');
+    if (
+      typeof content === 'string' &&
+      typeof name === 'string' &&
+      !validateJokeContent(content) &&
+      !validateJokeName(name)
+    ) {
+      return (
+        <JokeDisplay
+          canDelete={false}
+          isOwner={true}
+          joke={{ name, content }}
+        />
+      );
+    }
+  }
+
   return (
     <div>
       <p>Add your own hilarious joke</p>
-      <form method="post">
+      <Form method="post">
         <div>
           <label>
             Name:
@@ -119,7 +144,7 @@ export default function NewJokeRoute() {
             Add
           </button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 }
